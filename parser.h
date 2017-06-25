@@ -1,5 +1,12 @@
+#ifndef parser_h
+#define parser_h
 
-/// Parse the message
-void decodeMessage(char *message);
+#include "definitions.h"
 
-char encodeMessage();
+/// Parse the message string to a message
+Message *decodeMessage(char *messageString);
+
+/// Encode a message into a string
+char encodeMessage(Message message);
+
+#endif

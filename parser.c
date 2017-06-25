@@ -5,9 +5,9 @@
 
 #define DELIMITER ','
 
-void decodeMessage(char *message) {
+Message *decodeMessage(char *messageString) {
 
-	char *tmp = message;
+	char *tmp = messageString;
 	int nOfElements = 0;
 
 	while (tmp) {
@@ -29,7 +29,7 @@ void decodeMessage(char *message) {
 
 	if (infos) {
 
-		char *slice = strtok(message, delim);
+		char *slice = strtok(messageString, delim);
 		int index = 0;
 
 		while (slice) {
@@ -42,5 +42,23 @@ void decodeMessage(char *message) {
 		}
 	}
 	
-	//TODO: Transform the infos into a message 'object'
+	MessageType type = atoi(infos[0]);
+	Message *message = calloc(1, sizeof(Message));
+	
+	//TODO: Get the correct field for each information
+	switch (type) {
+		case security:
+
+			break;
+		case entertainment:
+
+			break;
+		case confortTraffic: 
+
+			break;
+		default:
+			break;
+	}
+
+	return message;
 }

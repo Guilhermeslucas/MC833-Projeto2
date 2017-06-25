@@ -5,6 +5,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include "parser.h"
+#include "definitions.h"
 
 #define LISTEN_PORT 12346
 #define MAX_PENDING 5
@@ -67,9 +68,11 @@ int main() {
                     exit(1);
                 }
 
-				decodeMessage(buf);
+				// Decode the received message
+				Message *message = decodeMessage(buf);
 
-				if (1) {
+				// Check the type of the message and simulate the delay
+				if (message->type == security) {
 					sleep(10);
 				} else {
 					sleep(100);
