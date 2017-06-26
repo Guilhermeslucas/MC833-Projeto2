@@ -10,6 +10,7 @@ Message *decodeMessage(char *messageString) {
 	char *tmp = messageString;
 	int nOfElements = 0;
 
+	// Count the number of elements
 	while (tmp) {
 
 		if (*tmp == DELIMITER) {
@@ -34,7 +35,7 @@ Message *decodeMessage(char *messageString) {
 
 		while (slice) {
 
-			// Check if isn't out of the size fomr the array
+			// Check if isn't out of the size from the array
 			if (!(index < nOfElements)) break;
 
 			strcpy(infos[index], slice);
@@ -42,23 +43,39 @@ Message *decodeMessage(char *messageString) {
 		}
 	}
 	
-	MessageType type = atoi(infos[0]);
 	Message *message = calloc(1, sizeof(Message));
-	
-	//TODO: Get the correct field for each information
-	switch (type) {
-		case security:
+	message->type = atoi(infos[0]);
+	Direction dir;
 
+	//TODO: Get the correct field for each information
+	switch (message->type) {
+		case security:
+			dir = 0;
+
+			if (dir == horizontal) {
+				message->speed.x = 8473274;
+				message->position.x = 3842934;
+				message->position.y = message->speed.y = 0;
+			} else {
+				message->speed.y = 8473274;
+				message->position.y = 3842934;
+				message->position.x = message->speed.x = 0;
+			}
+
+			strcpy(message->message, "sadas");
 			break;
 		case entertainment:
-
+			strcpy(message->message, "sadas");
 			break;
 		case confortTraffic: 
-
+			strcpy(message->message, "sadas");
 			break;
-		default:
-			break;
+		default: break; // Nothing to do
 	}
+
+	// Free the array
+	free(infos);
+	infos = NULL;
 
 	return message;
 }

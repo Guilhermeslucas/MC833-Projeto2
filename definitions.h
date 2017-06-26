@@ -7,16 +7,28 @@ typedef enum messageType {
 	confortTraffic = 3
 } MessageType;
 
-// Definition of a point, with x and y coordinates
+// The direction of the car
+typedef enum Direction {
+	horizontal = 0,
+	vertical = 1
+} Direction;
+
+// Definition of a point or a vector
 typedef struct point {
 	int x;
 	int y;
-} Point;
+} Point, Vector;
 
 // Definition of the message struct
 typedef struct message {
 	messageType type; 
-	int speed;
-	point position;
+	Vector speed;
+	Point position;
 	char *message;
 } Message;
+
+typedef struct car {
+	int id;
+	Vector speed;
+	Point position;
+} Car;

@@ -78,6 +78,9 @@ int main() {
 					sleep(100);
 				}
 
+				free(message);
+				message = NULL;
+
                 err = send(client_fd, buf, read, 0);
                 if (err < 0) {
                     perror("Client write failed\n");
