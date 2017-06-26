@@ -4,6 +4,14 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+
+#include <errno.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/time.h>
+
 #include "parser.h"
 #include "definitions.h"
 
@@ -11,14 +19,23 @@
 #define MAX_PENDING 5
 #define BUFFER_SIZE 256
 
+Car *cars;
+
 int main() {
     struct sockaddr_in server, client;
-    char buf[BUFFER_SIZE];
-    int sockfd, err, client_fd;
-    pid_t pid;
-    char client_ip[INET_ADDRSTRLEN];
+    char buffer[1025];
+    int sockfd, addrlen, new_socket, client_socket[30], max_clients = 30, activity, i, valread , sd;
+    int max_sd;
+    fd_set readfds;
 
-	// Initializing the server
+
+	cars = calloc(50, sizeof(Car));
+
+	// Initialize the server
+    for (i = 0; i < max_clients; i++) {
+        client_socket[i] = 0;
+    }
+
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         perror("ERROR opening socket");
@@ -38,56 +55,77 @@ int main() {
 
     listen(sockfd, MAX_PENDING);
 
+    addrlen = sizeof(client);
+
     while (1) {
 
-        socklen_t client_len = sizeof(client);
-        client_fd = accept(sockfd, (struct sockaddr *) &client, &client_len);
+        FD_ZERO(&readfds);
+        FD_SET(sockfd, &readfds);
 
-        inet_ntop(AF_INET, &client.sin_addr.s_addr, client_ip, sizeof(client_ip));
+        max_sd = sockfd;
 
-        if ((pid = fork()) == 0) {
+        for ( i = 0 ; i < max_clients ; i++) {
 
-            close(sockfd);
+            sd = client_socket[i];
 
-            if (client_fd < 0) {
-                perror("Could not establish new connection\n");
-                exit(1);
+            if (sd > 0) {
+                FD_SET( sd , &readfds);
             }
 
-            while (1) {
+            if (sd > max_sd) {
+                max_sd = sd;
+            }
+        }
 
-                int read = recv(client_fd, buf, BUFFER_SIZE, 0);
+        activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
 
-                if (!read) {
-                    close(client_fd);
-                    exit(0);
-                }
+        if (activity < 0 && errno != EINTR) {
+            printf("select error");
+        }
 
-                if (read < 0){
-                    perror("Client read failed\n");
-                    exit(1);
-                }
+        if (FD_ISSET(sockfd, &readfds)) {
 
-				// Decode the received message
-				Message *message = decodeMessage(buf);
+            if ((new_socket = accept(sockfd, (struct sockaddr *)&client, (socklen_t*)&addrlen)) < 0) {
+                perror("accept");
+                exit(EXIT_FAILURE);
+            }
 
-				// Check the type of the message and simulate the delay
-				if (message->type == security) {
-					sleep(10);
-				} else {
-					sleep(100);
-				}
+            printf("Client: %s:%d\n" , inet_ntoa(client.sin_addr) , ntohs(client.sin_port));
 
-				free(message);
-				message = NULL;
-
-                err = send(client_fd, buf, read, 0);
-                if (err < 0) {
-                    perror("Client write failed\n");
-                    exit(1);
+            for (i = 0; i < max_clients; i++) {
+                if (client_socket[i] == 0) {
+                    client_socket[i] = new_socket;
+                    break;
                 }
             }
         }
-        close(client_fd);
+
+        for (i = 0; i < max_clients; i++) {
+            sd = client_socket[i];
+
+            if (FD_ISSET( sd , &readfds)) {
+                if ((valread = read(sd , buffer, 1024)) == 0) {
+                    close(sd);
+                    client_socket[i] = 0;
+                } else {
+                    buffer[valread] = '\0';
+                    
+                    // Decode the received message
+                    Message *message = decodeMessage(buffer);
+
+                    // Check the type of the message and simulate the delay
+                    if (message->type == security) {
+                        sleep(10);
+                    } else {
+                        sleep(100);
+                    }
+
+                    free(message);
+                    message = NULL;
+
+                    send(sd, buffer, strlen(buffer), 0);
+                }
+            }
+        }
   }
 }

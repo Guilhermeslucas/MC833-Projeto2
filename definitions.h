@@ -29,7 +29,7 @@ typedef struct point {
 
 // Definition of the message struct
 typedef struct message {
-	messageType type; 
+	MessageType type; 
 	Vector speed;
 	Point position;
 	char *message;
@@ -38,6 +38,7 @@ typedef struct message {
 // Definition of the car struct
 typedef struct car {
 	int id;
+	int size;
 	Vector speed;
 	Point position;
 } Car;
