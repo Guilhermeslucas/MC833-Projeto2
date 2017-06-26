@@ -13,6 +13,14 @@ typedef enum Direction {
 	vertical = 1
 } Direction;
 
+// Define the possible actions that a car can make
+typedef enum Action {
+	none = 0,
+	brake = 1,
+	accelerate = 2,
+	ambulance = 3,
+} Action;
+
 // Definition of a point or a vector
 typedef struct point {
 	int x;
@@ -27,6 +35,7 @@ typedef struct message {
 	char *message;
 } Message;
 
+// Definition of the car struct
 typedef struct car {
 	int id;
 	Vector speed;
