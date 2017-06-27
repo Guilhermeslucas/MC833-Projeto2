@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 #include <errno.h>
 
@@ -21,14 +22,17 @@
 #define BUFFER_SIZE 256
 
 Car *cars;
+int *client_socket, max_clients = 50;
 
 /// Check if will happen a colision between two cars and set the cars ids
 ColisionType checkCars(int *car1, int *car2, int size);
 
-int main() {
+void *sendMessage(void *ptr);
+
+int main(int argc, char *argv[]) {
     struct sockaddr_in server, client;
-    char buffer[1025];
-    int sockfd, addrlen, new_socket, *client_socket, max_clients = 50, activity, i, valread , sd;
+    Message buffer;
+    int sockfd, addrlen, new_socket, activity, i, valread , sd;
     int max_sd;
     fd_set readfds;
 
@@ -107,53 +111,19 @@ int main() {
         for (i = 0; i < max_clients; i++) {
             sd = client_socket[i];
 
-            if (FD_ISSET( sd , &readfds)) {
-                if ((valread = read(sd , buffer, 1024)) == 0) {
+            if (FD_ISSET(sd, &readfds)) {
+                if ((valread = read(sd, (char *) &buffer, sizeof(buffer))) == 0) {
                     close(sd);
                     client_socket[i] = 0;
                 } else {
-                    buffer[valread] = '\0';
-                    
-                    // Decode the received message
-                    Message *message = decodeMessage(buffer);
+					pthread_t messageThread;
 
-                    // Check the type of the message and simulate the delay
-                    if (message->type == security) {
+					IndexMessage indexMessage;
 
-						Car car = cars[i];
-						
-						car.id = i;
-						car.size = message->size;
-						car.speed = message->speed;
-						car.position = message->position;
-						car.timestamp = message->timestamp;
-						car.direction = message->direction;
+					indexMessage.id = i;
+					indexMessage.message = buffer;
 
-						int car1 = -1, car2 = -1;
-
-						ColisionType colisionType = checkCars(&car1, &car2, max_clients);
-
-                        sleep(10);
-
-						switch (colisionType) {
-							case possibleColision:
-								send(client_socket[car1], "1,1", strlen("1,1"), 0);
-								send(client_socket[car2], "1,2", strlen("1,2"), 0);
-								break;
-							case colision:
-								send(client_socket[car1], "1,3", strlen("1,3"), 0);
-								send(client_socket[car2], "1,3", strlen("1,3"), 0);
-								break;
-							default:
-								break;
-						}
-                    } else {
-                        sleep(100);
-						send(sd, message->message, strlen(message->message), 0);
-					}
-
-					free(message);
-                    message = NULL;
+					pthread_create(&messageThread, NULL, sendMessage, &indexMessage);
                 }
             }
         }
@@ -178,4 +148,68 @@ ColisionType checkCars(int *car1, int *car2, int size) {
 
 	return noColision;
 }
+
+void *sendMessage(void *ptr) {
+
+	IndexMessage *indexMessage = (IndexMessage *) ptr;
+	int id = indexMessage->id;
+	Message message = indexMessage->message;
+
+	// Check the type of the message and simulate the delay
+	if (message.type == security) {
+
+		Car car = cars[id];
+		
+		car.id = id;
+		car.size = message.size;
+		car.speed = message.speed;
+		car.position = message.position;
+		car.timestamp = message.timestamp;
+		car.direction = message.direction;
+
+		int car1 = -1, car2 = -1;
+
+		ColisionType colisionType = checkCars(&car1, &car2, max_clients);
+
+		sleep(10);
+
+		ServerMessage response1, response2;
+
+		switch (colisionType) {
+			case possibleColision:
+				// Send a message to the first car stop
+				response1.type = security;
+				response1.action = brake;
+				send(client_socket[car1], (char *) &response1, sizeof(response1), 0);
+				
+				// Send a message to the second car accelerate
+				response2.type = security;
+				response2.action = accelerate;
+				send(client_socket[car2], (char *) &response2, sizeof(response2), 0);
+
+				break;
+			case colision:
+				// Send a message to call an ambulance
+				response1.type = security;
+				response1.action = ambulance;
+
+				send(client_socket[car1], (char *) &response1, sizeof(response1), 0);
+				send(client_socket[car2], (char *) &response1, sizeof(response1), 0);
+				
+				break;
+			default:
+				break;
+		}
+	} else {
+		sleep(100);
+
+		// Just echo the received message
+		ServerMessage response;
+		strcpy(response.message, message.message);
+		send(client_socket[id], (char *) &response, sizeof(response), 0);
+	}
+
+	return NULL;
+}
+
 
