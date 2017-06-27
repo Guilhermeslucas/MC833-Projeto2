@@ -48,6 +48,7 @@ typedef struct message {
 	Direction direction;
 } ClientMessage;
 
+/// Definition of the server message struct
 typedef struct serverMessage {
 	MessageType type;
 	Action action;
@@ -64,6 +65,7 @@ typedef struct car {
 	Direction direction;
 } Car;
 
+/// Auxiliary struct to pass an id and a message to ne thread
 typedef struct IndexMessage {
 	int id;
 	ClientMessage message;
