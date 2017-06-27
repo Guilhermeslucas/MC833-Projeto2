@@ -36,12 +36,6 @@ typedef enum ColisionType {
 	colision = 2
 } ColisionType;
 
-/// Definition of a point or a vector
-typedef struct point {
-	int x;
-	int y;
-} Point, Vector;
-
 /// Definition of the client message struct
 typedef struct message {
 	MessageType type; 
@@ -52,7 +46,13 @@ typedef struct message {
 	int timestamp;
 	char message[100];
 	Direction direction;
-} clientMessage;
+} ClientMessage;
+
+typedef struct serverMessage {
+	MessageType type;
+	Action action;
+	char message[100];
+} ServerMessage;
 
 /// Definition of the car struct
 typedef struct car {
@@ -64,5 +64,9 @@ typedef struct car {
 	Direction direction;
 } Car;
 
+typedef struct IndexMessage {
+	int id;
+	ClientMessage message;
+} IndexMessage;
 
 #endif
