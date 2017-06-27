@@ -42,16 +42,17 @@ typedef struct point {
 	int y;
 } Point, Vector;
 
-/// Definition of the message struct
+/// Definition of the client message struct
 typedef struct message {
 	MessageType type; 
+        int id;
 	int size;
 	int speed;
 	int position;
 	int timestamp;
 	char message[100];
 	Direction direction;
-} Message;
+} clientMessage;
 
 /// Definition of the car struct
 typedef struct car {
@@ -62,5 +63,6 @@ typedef struct car {
 	int timestamp;
 	Direction direction;
 } Car;
+
 
 #endif
