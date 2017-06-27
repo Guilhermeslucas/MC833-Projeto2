@@ -1,12 +1,9 @@
-/* Nome: Guilherme Lucas da Silva
- * RA: 155618
- * */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <netdb.h>
+#include "definitions.h"
 
 #define h_addr h_addr_list[0]
 #define SERVER_PORT 12345
@@ -21,10 +18,12 @@ int main(int argc, char * argv[])
     int socket_fd;
 
     /* verificaÃ§Ã£o de argumentos */
-    if (argc != 2) {
-        printf("You should pass just the host name as argument!\n");
+    if (argc != 8) {
+        printf("You should pass arguments like this:\n");
+        printf("type id size speed position direction message\n");
         exit(1);
     } 
+
     
     /* criaÃ§Ã£o de socket ativo*/
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
