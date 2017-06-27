@@ -14,6 +14,7 @@
 
 #include "parser.h"
 #include "definitions.h"
+#include "colisionChecker.h"
 
 #define LISTEN_PORT 12346
 #define MAX_PENDING 5
@@ -21,15 +22,18 @@
 
 Car *cars;
 
+/// Check if will happen a colision between two cars and set the cars ids
+ColisionType checkCars(int *car1, int *car2, int size);
+
 int main() {
     struct sockaddr_in server, client;
     char buffer[1025];
-    int sockfd, addrlen, new_socket, client_socket[30], max_clients = 30, activity, i, valread , sd;
+    int sockfd, addrlen, new_socket, *client_socket, max_clients = 50, activity, i, valread , sd;
     int max_sd;
     fd_set readfds;
 
-
-	cars = calloc(50, sizeof(Car));
+	client_socket = calloc(max_clients, sizeof(int));
+	cars = calloc(max_clients, sizeof(Car));
 
 	// Initialize the server
     for (i = 0; i < max_clients; i++) {
@@ -64,7 +68,7 @@ int main() {
 
         max_sd = sockfd;
 
-        for ( i = 0 ; i < max_clients ; i++) {
+        for (i = 0 ; i < max_clients ; i++) {
 
             sd = client_socket[i];
 
@@ -115,17 +119,63 @@ int main() {
 
                     // Check the type of the message and simulate the delay
                     if (message->type == security) {
+
+						Car car = cars[i];
+						
+						car.id = i;
+						car.size = message->size;
+						car.speed = message->speed;
+						car.position = message->position;
+						car.timestamp = message->timestamp;
+						car.direction = message->direction;
+
+						int car1 = -1, car2 = -1;
+
+						ColisionType colisionType = checkCars(&car1, &car2, max_clients);
+
                         sleep(10);
+
+						switch (colisionType) {
+							case possibleColision:
+								send(client_socket[car1], "1,1", strlen("1,1"), 0);
+								send(client_socket[car2], "1,2", strlen("1,2"), 0);
+								break;
+							case colision:
+								send(client_socket[car1], "1,3", strlen("1,3"), 0);
+								send(client_socket[car2], "1,3", strlen("1,3"), 0);
+								break;
+							default:
+								break;
+						}
                     } else {
                         sleep(100);
-                    }
+						send(sd, message->message, strlen(message->message), 0);
+					}
 
-                    free(message);
+					free(message);
                     message = NULL;
-
-                    send(sd, buffer, strlen(buffer), 0);
                 }
             }
         }
-  }
+  	}
 }
+
+ColisionType checkCars(int *car1, int *car2, int size) {
+
+	for (int i = 0; i < size; i++) {
+		for (int j = i + 1; j < size; j++) {
+
+			ColisionType colisionType = checkColision(cars[i], cars[j]);
+
+			if (colisionType) {
+				*car1 = i;
+				*car2 = j;
+
+				return colisionType;
+			}
+		}
+	}
+
+	return noColision;
+}
+

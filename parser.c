@@ -35,7 +35,6 @@ Message *decodeMessage(char *messageString) {
 
 		while (slice) {
 
-			// Check if isn't out of the size from the array
 			if (!(index < nOfElements)) break;
 
 			strcpy(infos[index], slice);
@@ -50,17 +49,9 @@ Message *decodeMessage(char *messageString) {
 	//TODO: Get the correct field for each information
 	switch (message->type) {
 		case security:
-			dir = 0;
-
-			if (dir == horizontal) {
-				message->speed.x = 8473274;
-				message->position.x = 3842934;
-				message->position.y = message->speed.y = 0;
-			} else {
-				message->speed.y = 8473274;
-				message->position.y = 3842934;
-				message->position.x = message->speed.x = 0;
-			}
+			message->speed = 8473274;
+			message->position = 3842934;
+			message->direction = horizontal;
 
 			strcpy(message->message, "sadas");
 			break;

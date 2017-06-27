@@ -1,5 +1,13 @@
+#ifndef definitions_h
+#define definitions_h
 
-// The type of the message
+/// Boolean 
+typedef enum Bool {
+	False = 0,
+	True = 1
+} Bool;
+
+/// The type of the message
 typedef enum messageType {
 	other = 0,
 	security = 1,
@@ -7,13 +15,13 @@ typedef enum messageType {
 	confortTraffic = 3
 } MessageType;
 
-// The direction of the car
+/// The direction of the car
 typedef enum Direction {
 	horizontal = 0,
 	vertical = 1
 } Direction;
 
-// Define the possible actions that a car can make
+/// Define the possible actions that a car can make
 typedef enum Action {
 	none = 0,
 	brake = 1,
@@ -21,24 +29,38 @@ typedef enum Action {
 	ambulance = 3,
 } Action;
 
-// Definition of a point or a vector
+/// Define the possible situations when two cars can colide
+typedef enum ColisionType {
+	noColision = 0,
+	possibleColision = 1,
+	colision = 2
+} ColisionType;
+
+/// Definition of a point or a vector
 typedef struct point {
 	int x;
 	int y;
 } Point, Vector;
 
-// Definition of the message struct
+/// Definition of the message struct
 typedef struct message {
 	MessageType type; 
-	Vector speed;
-	Point position;
-	char *message;
+	int size;
+	int speed;
+	int position;
+	int timestamp;
+	char message[100];
+	Direction direction;
 } Message;
 
-// Definition of the car struct
+/// Definition of the car struct
 typedef struct car {
 	int id;
 	int size;
-	Vector speed;
-	Point position;
+	int speed;
+	int position;
+	int timestamp;
+	Direction direction;
 } Car;
+
+#endif
