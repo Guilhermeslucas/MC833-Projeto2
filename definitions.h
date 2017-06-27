@@ -36,16 +36,17 @@ typedef enum ColisionType {
 	colision = 2
 } ColisionType;
 
-/// Definition of the message struct
+/// Definition of the client message struct
 typedef struct message {
 	MessageType type; 
+        int id;
 	int size;
 	int speed;
 	int position;
 	int timestamp;
 	char message[100];
 	Direction direction;
-} Message;
+} ClientMessage;
 
 typedef struct serverMessage {
 	MessageType type;
@@ -65,7 +66,7 @@ typedef struct car {
 
 typedef struct IndexMessage {
 	int id;
-	Message message;
+	ClientMessage message;
 } IndexMessage;
 
 #endif

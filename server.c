@@ -31,7 +31,7 @@ void *sendMessage(void *ptr);
 
 int main(int argc, char *argv[]) {
     struct sockaddr_in server, client;
-    Message buffer;
+    ClientMessage buffer;
     int sockfd, addrlen, new_socket, activity, i, valread , sd;
     int max_sd;
     fd_set readfds;
@@ -153,7 +153,7 @@ void *sendMessage(void *ptr) {
 
 	IndexMessage *indexMessage = (IndexMessage *) ptr;
 	int id = indexMessage->id;
-	Message message = indexMessage->message;
+	ClientMessage message = indexMessage->message;
 
 	// Check the type of the message and simulate the delay
 	if (message.type == security) {
@@ -195,7 +195,7 @@ void *sendMessage(void *ptr) {
 
 				send(client_socket[car1], (char *) &response1, sizeof(response1), 0);
 				send(client_socket[car2], (char *) &response1, sizeof(response1), 0);
-				
+
 				break;
 			default:
 				break;
