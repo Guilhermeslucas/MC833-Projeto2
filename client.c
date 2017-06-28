@@ -19,8 +19,10 @@ int main(int argc, char * argv[])
     int socket_fd;
     ClientMessage* message; 
     time_t timestamp_sec; 
+    ServerMessage server_message;
     
     message = malloc(sizeof(ClientMessage));
+    server_message = malloc(sizeof(ServerMessage));
 
     /* arguments verification*/
     if (argc != 8) {
@@ -37,7 +39,7 @@ int main(int argc, char * argv[])
     message->position = atoi(argv[5]);
     message->timestamp = time(&timestamp_sec);
     message->direction = argv[6];
-    strcpy(message->direction,argv[7]);
+    strcpy(message->message,argv[7]);
 
 
     /* criacao de socket ativo*/
@@ -73,22 +75,27 @@ int main(int argc, char * argv[])
 
     /* ler e enviar linhas de texto, receber eco */
     while(1) {
-        printf("Please enter message: ");
-        bzero(buf, MAX_LINE);
-        fgets(buf, MAX_LINE, stdin);
 
-        if(send(socket_fd, buf, strlen(buf) , 0) < 0) {
+        if(send(socket_fd, message, sizeof(ClientMessage) , 0) < 0) {
             printf("Not possible to send the message\n");
             exit(1);
         }
         
-        bzero(buf, MAX_LINE);
        
-        if (read(socket_fd, buf, MAX_LINE) < 0) {
+        if (read(socket_fd, server_message, sizeof(ServerMessage)) < 0) {
             printf("Not possible to read from socket\n");
             exit(1);
         }
-        printf("Message from server: %s", buf);
+        
+        if (server_message.type != noCollision) {
+            if (server_message.action == brake || server_message.action == ambulance)
+                message.speed = 0;
+            
+            else if (server.message.action == accelerate)
+                message.speed = 10;
+        }
+
+        sleep(2);
 
     }
     
