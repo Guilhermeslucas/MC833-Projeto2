@@ -39,7 +39,6 @@ int main(int argc, char * argv[])
     message->size = atoi(argv[3]);
     message->speed = atoi(argv[4]);
     message->position = atoi(argv[5]);
-    message->timestamp = time(&timestamp_sec);
     message->direction = atoi(argv[6]);
     strcpy(message->message,argv[7]);
 
@@ -76,7 +75,9 @@ int main(int argc, char * argv[])
     }
 
     /* ler e enviar linhas de texto, receber eco */
-    while(1) {        
+    while(1) {
+        message->timestamp = time(&timestamp_sec);
+        message->position = message->position + message->speed;
         if (colision_flag) {
             if (colision_flag == 1) {
                 colision_flag++;
