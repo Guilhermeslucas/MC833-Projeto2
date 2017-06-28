@@ -58,4 +58,8 @@ dkms.conf
 #vim files
 *.swp
 
+#output files
+client
+server
+
 # End of https://www.gitignore.io/api/c

@@ -20,6 +20,8 @@ int main(int argc, char * argv[])
     ClientMessage* message; 
     time_t timestamp_sec; 
     ServerMessage* server_message;
+    int colision_flag = 0;
+    int old_speed;
     
     message = malloc(sizeof(ClientMessage));
     server_message = malloc(sizeof(ServerMessage));
@@ -74,7 +76,16 @@ int main(int argc, char * argv[])
     }
 
     /* ler e enviar linhas de texto, receber eco */
-    while(1) {
+    while(1) {        
+        if (colision_flag) {
+            if (colision_flag == 1) {
+                colision_flag++;
+            }
+            else if (colision_flag == 2) {
+                colision_flag = 0;
+                message->speed = old_speed;
+            }
+        }
 
         if(send(socket_fd, message, sizeof(ClientMessage) , 0) < 0) {
             printf("Not possible to send the message\n");
@@ -88,11 +99,15 @@ int main(int argc, char * argv[])
         }
         
         if (server_message->type != noCollision) {
-            if (server_message->action == brake || server_message->action == ambulance)
+            if (server_message->action == brake || server_message->action == ambulance) {
+                old_speed = message->speed;
                 message->speed = 0;
+                colision_flag++;
+            }
             
-            else if (server_message->action == accelerate)
+            else if (server_message->action == accelerate) {
                 message->speed = 10;
+            }
         }
 
         sleep(2);
