@@ -16,7 +16,7 @@
 #include "definitions.h"
 #include "collisionChecker.h"
 
-#define LISTEN_PORT 12346
+#define LISTEN_PORT 12345
 #define MAX_PENDING 5
 #define BUFFER_SIZE 256
 
