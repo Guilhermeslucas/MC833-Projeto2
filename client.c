@@ -27,20 +27,20 @@ int main(int argc, char * argv[])
     server_message = malloc(sizeof(ServerMessage));
 
     /* arguments verification*/
-    if (argc != 8) {
+    if (argc != 7) {
         printf("You should pass arguments like this:\n");
-        printf("type id size speed position direction message\n");
+        printf("type size speed position direction message\n");
         exit(1);
     }
 
     /*create struct to send messsage*/
     message->type = atoi(argv[1]);
-    message->id = atoi(argv[2]);
-    message->size = atoi(argv[3]);
-    message->speed = atoi(argv[4]);
-    message->position = atoi(argv[5]);
-    message->direction = atoi(argv[6]);
-    strcpy(message->message,argv[7]);
+    message->id = -1;
+    message->size = atoi(argv[2]);
+    message->speed = atoi(argv[3]);
+    message->position = atoi(argv[4]);
+    message->direction = atoi(argv[5]);
+    strcpy(message->message,argv[6]);
 
 
     /* criacao de socket ativo*/
@@ -98,6 +98,8 @@ int main(int argc, char * argv[])
             printf("Not possible to read from socket\n");
             exit(1);
         }
+
+        message->id = server_message->id;
         
         if (server_message->type != noCollision) {
             if (server_message->action == brake || server_message->action == ambulance) {

@@ -52,6 +52,7 @@ typedef struct clientMessage {
 
 /// Definition of the server message struct
 typedef struct serverMessage {
+        int id;
 	MessageType type;
 	Action action;
 	char message[100];
