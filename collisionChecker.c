@@ -45,7 +45,7 @@ CollisionType checkCollision(Car car1, Car car2) {
 
 	// Check if the cars aren't on the same direction
 	if (car1.direction != car2.direction) {
-		if (time1 + timeSize2 < 0 || time2 + timeSize2 < 0) return noCollision;
+		if (time1 + timeSize1 < 0 || time2 + timeSize2 < 0) return noCollision;
 
 		// Check if both cars will arive at the same time or if one car
 		// will arrive while the other is still crossing the center
