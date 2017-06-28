@@ -170,7 +170,10 @@ void *sendMessage(void *ptr) {
 
 		CollisionType collisionType = checkCars(&car1, &car2, max_clients);
 
-		sleep(10);
+		struct timespec ts;
+    	ts.tv_sec = 10 / 1000;
+    	ts.tv_nsec = 0.01 * 1000000;
+    	nanosleep(&ts, NULL);
 
 		ServerMessage response1, response2;
 
@@ -200,7 +203,10 @@ void *sendMessage(void *ptr) {
 				break;
 		}
 	} else {
-		sleep(100);
+		struct timespec ts;
+    	ts.tv_sec = 100 / 1000;
+    	ts.tv_nsec = 0.1 * 1000000;
+    	nanosleep(&ts, NULL);
 
 		// Just echo the received message
 		ServerMessage response;
