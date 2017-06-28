@@ -13,9 +13,8 @@
 #include <netinet/in.h>
 #include <sys/time.h>
 
-#include "parser.h"
 #include "definitions.h"
-#include "colisionChecker.h"
+#include "collisionChecker.h"
 
 #define LISTEN_PORT 12346
 #define MAX_PENDING 5
@@ -24,8 +23,8 @@
 Car *cars;
 int *client_socket, max_clients = 50;
 
-/// Check if will happen a colision between two cars and set the cars ids
-ColisionType checkCars(int *car1, int *car2, int size);
+/// Check if will happen a collision between two cars and set the cars ids
+CollisionType checkCars(int *car1, int *car2, int size);
 
 void *sendMessage(void *ptr);
 
@@ -130,23 +129,23 @@ int main(int argc, char *argv[]) {
   	}
 }
 
-ColisionType checkCars(int *car1, int *car2, int size) {
+CollisionType checkCars(int *car1, int *car2, int size) {
 
 	for (int i = 0; i < size; i++) {
 		for (int j = i + 1; j < size; j++) {
 
-			ColisionType colisionType = checkColision(cars[i], cars[j]);
+			CollisionType collisionType = checkCollision(cars[i], cars[j]);
 
-			if (colisionType) {
+			if (collisionType) {
 				*car1 = i;
 				*car2 = j;
 
-				return colisionType;
+				return collisionType;
 			}
 		}
 	}
 
-	return noColision;
+	return noCollision;
 }
 
 void *sendMessage(void *ptr) {
@@ -169,14 +168,14 @@ void *sendMessage(void *ptr) {
 
 		int car1 = -1, car2 = -1;
 
-		ColisionType colisionType = checkCars(&car1, &car2, max_clients);
+		CollisionType collisionType = checkCars(&car1, &car2, max_clients);
 
 		sleep(10);
 
 		ServerMessage response1, response2;
 
-		switch (colisionType) {
-			case possibleColision:
+		switch (collisionType) {
+			case possibleCollision:
 				// Send a message to the first car stop
 				response1.type = security;
 				response1.action = brake;
@@ -188,7 +187,7 @@ void *sendMessage(void *ptr) {
 				send(client_socket[car2], (char *) &response2, sizeof(response2), 0);
 
 				break;
-			case colision:
+			case collision:
 				// Send a message to call an ambulance
 				response1.type = security;
 				response1.action = ambulance;

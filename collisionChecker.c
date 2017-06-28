@@ -1,41 +1,42 @@
 #import <stdio.h>
 #import <stdlib.h>
 #import <math.h>
-#import "colisionChecker.h"
+#include <time.h>
+#import "collisionChecker.h"
 
 /// Evaluate how many time the given car will take to arrive to the center
 /// Returns -INFINITY if the car isn't moving or a negative value if it 
 /// already crossed the center
 double timeToCenter(Car car) {
-	double time = 0;
+	double timeToC = 0;
 	int speed = car.speed;
 	int position = car.position;
 
-	if (speed == 0) time = -INFINITY; 
-	else time = -(position / speed); 
+	if (speed == 0) timeToC = -INFINITY; 
+	else timeToC = -(position / speed); 
 
-	// TODO: Add the sime since the last status
-	if (time > 0) {
-		// time += car.timestamp
+	if (timeToC > 0) {
+		int timestamp = time(NULL);
+		timeToC -= timestamp - car.timestamp;
 	}
 
-	return time;
+	return timeToC;
 }
 
 /// Evaluate how many time the given car takes to cross the center
 /// Returns -INFINITY if the car isn't moving
 double timeToCrossCenter(Car car) {
 
-	double time = 0;
+	double timeToC = 0;
 	int speed = car.speed;
 
-	if (speed == 0) time = -INFINITY; 
-	else time = car.size / abs(speed); 
+	if (speed == 0) timeToC = -INFINITY; 
+	else timeToC = car.size / abs(speed); 
 
-	return time;
+	return timeToC;
 }
 
-ColisionType checkColision(Car car1, Car car2) {
+CollisionType checkCollision(Car car1, Car car2) {
 
 	double time1 = timeToCenter(car1);
 	double time2 = timeToCenter(car2);
@@ -44,7 +45,7 @@ ColisionType checkColision(Car car1, Car car2) {
 
 	// Check if the cars aren't on the same direction
 	if (car1.direction != car2.direction) {
-		if (time1 + timeSize2 < 0 || time2 + timeSize2 < 0) return noColision;
+		if (time1 + timeSize2 < 0 || time2 + timeSize2 < 0) return noCollision;
 
 		// Check if both cars will arive at the same time or if one car
 		// will arrive while the other is still crossing the center
@@ -52,17 +53,17 @@ ColisionType checkColision(Car car1, Car car2) {
 			(time1 > time2 && time1 <= time2 + timeSize2) ||
 			(time2 > time1 && time2 <= time1 + timeSize1)) {
 			
-			// Check if a colision will occur
+			// Check if a collision will occur
 			if ((time1 >= 0 && time1 <= timeSize2) || 
 				(time2 >= 0 && time2 <= timeSize1)) {
 				
-				return colision;
+				return collision;
 			}
 
-			return possibleColision;
+			return possibleCollision;
 		}
 	}
 
-	return noColision;
+	return noCollision;
 }
 

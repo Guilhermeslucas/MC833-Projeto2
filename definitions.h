@@ -30,16 +30,16 @@ typedef enum Action {
 } Action;
 
 /// Define the possible situations when two cars can colide
-typedef enum ColisionType {
-	noColision = 0,
-	possibleColision = 1,
-	colision = 2
-} ColisionType;
+typedef enum CollisionType {
+	noCollision = 0,
+	possibleCollision = 1,
+	collision = 2
+} CollisionType;
 
 /// Definition of the client message struct
-typedef struct message {
+typedef struct clientMessage {
 	MessageType type; 
-        int id;
+    int id;
 	int size;
 	int speed;
 	int position;
