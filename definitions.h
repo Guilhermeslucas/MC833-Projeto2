@@ -1,6 +1,8 @@
 #ifndef definitions_h
 #define definitions_h
 
+#import <time.h>
+
 /// Boolean 
 typedef enum Bool {
 	False = 0,
