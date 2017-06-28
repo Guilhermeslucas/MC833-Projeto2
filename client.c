@@ -17,7 +17,7 @@ int main(int argc, char * argv[])
     char *host_name;
     char buf[MAX_LINE];
     int socket_fd;
-    ClientMessage message; 
+    ClientMessage* message; 
     time_t timestamp_sec; 
     
     message = malloc(sizeof(ClientMessage));
@@ -34,11 +34,11 @@ int main(int argc, char * argv[])
     }
 
     /*create struct to send messsage*/
-    message.type = atoi(argv[1]);
-    message.id = atoi(argv[2]);
-    message.size = atoi(argv[3]);
-    message.speed = atoi(argv[4]);
-    message.position = atoi(argv[5]);
+    message->type = atoi(argv[1]);
+    message->id = atoi(argv[2]);
+    message->size = atoi(argv[3]);
+    message->speed = atoi(argv[4]);
+    message->position = atoi(argv[5]);
 
     /* criacao de socket ativo*/
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);

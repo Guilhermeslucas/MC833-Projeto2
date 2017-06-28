@@ -43,7 +43,7 @@ typedef struct clientMessage {
 	int size;
 	int speed;
 	int position;
-	int timestamp;
+	time_t timestamp;
 	char message[100];
 	Direction direction;
 } ClientMessage;
