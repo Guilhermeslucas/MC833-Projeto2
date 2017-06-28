@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <time.h>
 #include "definitions.h"
 
 #define h_addr h_addr_list[0]
@@ -16,7 +17,14 @@ int main(int argc, char * argv[])
     char *host_name;
     char buf[MAX_LINE];
     int socket_fd;
-    ClientMessage message = malloc(sizeof(ClientMessage));
+    ClientMessage message; 
+    time_t timestamp_sec; 
+    
+    message = malloc(sizeof(ClientMessage));
+
+    time(&timestamp_sec);
+    printf("%ld\n", timestamp_sec);
+    exit(1);
 
     /* arguments verification*/
     if (argc != 8) {
