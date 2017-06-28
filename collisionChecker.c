@@ -16,7 +16,7 @@ double timeToCenter(Car car) {
 	else timeToC = -(position / speed); 
 
 	if (timeToC > 0) {
-		int timestamp = time(NULL);
+		time_t timestamp = time(NULL);
 		timeToC -= timestamp - car.timestamp;
 	}
 
