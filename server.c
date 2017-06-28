@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
+        activity = select(max_sd + 1 , &readfds , NULL , NULL , NULL);
 
         if (activity < 0 && errno != EINTR) {
             printf("select error");
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
 					indexMessage.id = i;
 					indexMessage.message = buffer;
 
-					printf("%d %d %d %d\n", buffer.id, buffer.size, buffer.speed, (int) buffer.timestamp);
+					printf("%d %d %d %d\n", buffer.id, buffer.position, buffer.speed, (int) buffer.timestamp);
 
 					pthread_create(&messageThread, NULL, sendMessage, &indexMessage);
                 }
@@ -156,8 +156,6 @@ void *sendMessage(void *ptr) {
 	int id = indexMessage->id;
 	ClientMessage message = indexMessage->message;
 
-	printf("checking message type...\n");
-
 	// Check the type of the message and simulate the delay
 	if (message.type == security) {
 
@@ -173,7 +171,6 @@ void *sendMessage(void *ptr) {
 		int car1 = -1, car2 = -1;
 
 		CollisionType collisionType = checkCars(&car1, &car2, max_clients);
-		printf("security, sleeping for 10ms\n");
 
 		struct timespec ts;
     	ts.tv_sec = 10 / 1000;
@@ -182,7 +179,6 @@ void *sendMessage(void *ptr) {
 
 		ServerMessage response1, response2;
 
-		printf("security, sending message to the client\n");
 		switch (collisionType) {
 			case possibleCollision:
 				// Send a message to the first car stop
@@ -214,13 +210,11 @@ void *sendMessage(void *ptr) {
 				break;
 		}
 	} else {
-		printf("others, sleeping for 100ms\n");
 		struct timespec ts;
     	ts.tv_sec = 100 / 1000;
     	ts.tv_nsec = 0.1 * 1000000;
     	nanosleep(&ts, NULL);
 
-		printf("others, sending message to the client\n");
 		// Just echo the received message
 		ServerMessage response;
 		strcpy(response.message, message.message);
