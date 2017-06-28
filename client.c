@@ -16,16 +16,23 @@ int main(int argc, char * argv[])
     char *host_name;
     char buf[MAX_LINE];
     int socket_fd;
+    ClientMessage message = malloc(sizeof(ClientMessage));
 
-    /* verificaÃ§Ã£o de argumentos */
+    /* arguments verification*/
     if (argc != 8) {
         printf("You should pass arguments like this:\n");
         printf("type id size speed position direction message\n");
         exit(1);
-    } 
+    }
 
-    
-    /* criaÃ§Ã£o de socket ativo*/
+    /*create struct to send messsage*/
+    message.type = atoi(argv[1]);
+    message.id = atoi(argv[2]);
+    message.size = atoi(argv[3]);
+    message.speed = atoi(argv[4]);
+    message.position = atoi(argv[5]);
+
+    /* criacao de socket ativo*/
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 
     if (socket_fd < 0) {
@@ -33,8 +40,8 @@ int main(int argc, char * argv[])
         exit(1);
     }
 
-    /* traduÃ§Ã£o de nome para endereÃ§o IP */
-    host_name = argv[1];
+    /* traducao de nome para endereco IP */
+    host_name = "localhost";
     host_address = gethostbyname(host_name);
 
     if (host_address == NULL) {

@@ -39,7 +39,7 @@ typedef enum CollisionType {
 /// Definition of the client message struct
 typedef struct clientMessage {
 	MessageType type; 
-    int id;
+        int id;
 	int size;
 	int speed;
 	int position;
