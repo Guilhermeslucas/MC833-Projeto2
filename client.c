@@ -19,7 +19,7 @@ int main(int argc, char * argv[])
     int socket_fd;
     ClientMessage* message; 
     time_t timestamp_sec; 
-    ServerMessage server_message;
+    ServerMessage* server_message;
     
     message = malloc(sizeof(ClientMessage));
     server_message = malloc(sizeof(ServerMessage));
@@ -32,13 +32,13 @@ int main(int argc, char * argv[])
     }
 
     /*create struct to send messsage*/
-    message->type = argv[1];
+    message->type = atoi(argv[1]);
     message->id = atoi(argv[2]);
     message->size = atoi(argv[3]);
     message->speed = atoi(argv[4]);
     message->position = atoi(argv[5]);
     message->timestamp = time(&timestamp_sec);
-    message->direction = argv[6];
+    message->direction = atoi(argv[6]);
     strcpy(message->message,argv[7]);
 
 
@@ -87,12 +87,12 @@ int main(int argc, char * argv[])
             exit(1);
         }
         
-        if (server_message.type != noCollision) {
-            if (server_message.action == brake || server_message.action == ambulance)
-                message.speed = 0;
+        if (server_message->type != noCollision) {
+            if (server_message->action == brake || server_message->action == ambulance)
+                message->speed = 0;
             
-            else if (server.message.action == accelerate)
-                message.speed = 10;
+            else if (server_message->action == accelerate)
+                message->speed = 10;
         }
 
         sleep(2);
