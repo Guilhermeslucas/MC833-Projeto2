@@ -22,10 +22,6 @@ int main(int argc, char * argv[])
     
     message = malloc(sizeof(ClientMessage));
 
-    time(&timestamp_sec);
-    printf("%ld\n", timestamp_sec);
-    exit(1);
-
     /* arguments verification*/
     if (argc != 8) {
         printf("You should pass arguments like this:\n");
@@ -34,11 +30,15 @@ int main(int argc, char * argv[])
     }
 
     /*create struct to send messsage*/
-    message->type = atoi(argv[1]);
+    message->type = argv[1];
     message->id = atoi(argv[2]);
     message->size = atoi(argv[3]);
     message->speed = atoi(argv[4]);
     message->position = atoi(argv[5]);
+    message->timestamp = time(&timestamp_sec);
+    message->direction = argv[6];
+    strcpy(message->direction,argv[7]);
+
 
     /* criacao de socket ativo*/
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
