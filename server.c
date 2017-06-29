@@ -184,11 +184,13 @@ void *sendMessage(void *ptr) {
 				// Send a message to the first car stop
 				response1.type = security;
 				response1.action = brake;
+				response1.id = car1;
 				send(client_socket[car1], (char *) &response1, sizeof(response1), 0);
 				
 				// Send a message to the second car accelerate
 				response2.type = security;
 				response2.action = accelerate;
+				response2.id = car2;
 				send(client_socket[car2], (char *) &response2, sizeof(response2), 0);
 
 				break;
@@ -196,18 +198,27 @@ void *sendMessage(void *ptr) {
 				// Send a message to call an ambulance
 				response1.type = security;
 				response1.action = ambulance;
+				response1.id = car1;
 
 				send(client_socket[car1], (char *) &response1, sizeof(response1), 0);
-				send(client_socket[car2], (char *) &response1, sizeof(response1), 0);
+				
+				response2.type = security;
+				response2.action = ambulance;
+				response2.id = car2;
+				send(client_socket[car2], (char *) &response1, sizeof(response2), 0);
 
 				break;
-			default:
-				// Send a message to call an ambulance
-				response1.type = security;
-				response1.action = none;
+			default: break;
+		}
 
-				send(client_socket[id], (char *) &response1, sizeof(response1), 0);
-				break;
+		// If no car was selected or any of them was the last car that sent a message, 
+		// send a response to do nothing
+		if (car1 != id && car2 != id) {
+			response1.type = security;
+			response1.action = none;
+			response1.id = id;
+
+			send(client_socket[id], (char *) &response1, sizeof(response1), 0);
 		}
 	} else {
 		struct timespec ts;
