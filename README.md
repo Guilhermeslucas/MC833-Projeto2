@@ -35,3 +35,6 @@ Após obtidos esses campos pela linha de comando, onde o usuário passa os valor
 * connect: estabelece conexão entre o cliente e servidor
 * send: envia mensagem para o servidor
 * read: recebe mensagem do servidor
+
+## 4. Testes
+Criamos um simples método de testar o software de maneira automatizada. O **teste_script.py** lança clientes com valores aleatórios para testar o projeto. Para testar, basta compilar o servidor e lançá-lo. Feito isso, basta rodar os scripts usando python3 e analisar a saída.
