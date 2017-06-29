@@ -17,4 +17,21 @@ Nesse projeto, adotamos cada cliente como um automóvel, que possui as seguintes
 Script desenvolvido em Python é extremamente simples e realiza a simples tarefa de executar alguns clientes com características aleatórias baseadas nos limites que definimos no trabalho. Além disso, tem a função de matar todos os clientes que esse mesmo script iniciou.
 
 ## 3. Implementação
+### 3.1 Cliente
+Para a implementação do código do cliente, foram necessárias algumas definições feitas no header **definitions.h**. A estrutura mais importante dessa parte do código é a **ClientMessage** estrutura feita para enviar as informações do servidor ao cliente. Esse possui os seguintes atributos:   
 
+* type: tipo da mensagem (conforto, segurança, entretenimento)
+* id: identificador único para o automóvel que está enviando a mensagem 
+* size: tamanho do automóvel em questão
+* speed: velocidade do automóvel
+* position: posição que o automóvel se encontra no mapa
+* direction: informação para saber se o carro está se movendo na vertical ou horizontal
+* message: mensagem que está enviando
+
+Após obtidos esses campos pela linha de comando, onde o usuário passa os valores como argumentos do **cliente** a estrutura de mensagem é povoado com essas informação e enviada para o servidor, bloqueando até receber a mensagem do mesmo. Para esse processo são usados as seguintes funções:   
+
+* socket: função necessária para a criação de um socket, onde serão enviadas as mensagens
+* gethostbyname: obtem o endereço do servidor a partir do nome
+* connect: estabelece conexão entre o cliente e servidor
+* send: envia mensagem para o servidor
+* read: recebe mensagem do servidor
