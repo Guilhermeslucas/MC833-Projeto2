@@ -1,3 +1,5 @@
+#run with python3
+
 import subprocess
 import os
 from random import randint
