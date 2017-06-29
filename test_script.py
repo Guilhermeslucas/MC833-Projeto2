@@ -7,13 +7,20 @@ import time
 
 message = "MC833"
 procs = []
-for i in range(0,8):
+for i in range(0,16):
     try:
-        rand_type = str(randint(0,3))
+        rand_type = str(1)
         rand_size = str(randint(1,5))
-        rand_speed = str(randint(1,9))
-        rand_pos = str(randint(1,10))
-        rand_dir = str(randint(0,1))
+        rand_speed_value = randint(1,5)
+        rand_pos_value = randint(-50,50)
+        rand_pos = str(rand_pos_value)
+        rand_dir = str(i % 2)
+
+        if rand_pos_value > 0: 
+            rand_speed_value = -1 * rand_speed_value
+        
+        rand_speed = str(rand_speed_value)
+
         print("./client "+rand_type+" "+rand_size+" "+rand_speed+" "+rand_pos+" "+rand_dir+" "+message)
         p = subprocess.Popen("./client "+rand_type+" "+rand_size+" "+rand_speed+" "+rand_pos+" "+rand_dir+" "+message, shell=True)
         procs.append(p)

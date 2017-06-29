@@ -21,10 +21,11 @@
 #define BUFFER_SIZE 256
 
 Car *cars;
-int *client_socket, max_clients = 50;
+int *client_socket, max_clients = 50, nClients = 0;
+pthread_mutex_t lock;
 
-/// Check if will happen a collision between two cars and set the cars ids
-CollisionType checkCars(int *car1, int *car2, int size);
+/// Check if will happen a collision between a given car and the others and set the cars ids
+CollisionType checkCars(int car1, int *car2, int size);
 
 void *sendMessage(void *ptr);
 
@@ -41,6 +42,12 @@ int main(int argc, char *argv[]) {
 	// Initialize the server
     for (i = 0; i < max_clients; i++) {
         client_socket[i] = 0;
+    }
+
+	if (pthread_mutex_init(&lock, NULL) != 0)
+    {
+        perror("Mutex init failed");
+        exit(1);
     }
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -102,6 +109,7 @@ int main(int argc, char *argv[]) {
             for (i = 0; i < max_clients; i++) {
                 if (client_socket[i] == 0) {
                     client_socket[i] = new_socket;
+					nClients++;
                     break;
                 }
             }
@@ -114,6 +122,7 @@ int main(int argc, char *argv[]) {
                 if ((valread = read(sd, (char *) &buffer, sizeof(buffer))) == 0) {
                     close(sd);
                     client_socket[i] = 0;
+					nClients--;
                 } else {
 					pthread_t messageThread;
 
@@ -122,7 +131,7 @@ int main(int argc, char *argv[]) {
 					indexMessage.id = i;
 					indexMessage.message = buffer;
 
-					printf("%d %d %d %d\n", buffer.id, buffer.position, buffer.speed, (int) buffer.timestamp);
+					printf("id: %d size: %d pos: %d speed: %d dir: %d\n", buffer.id, buffer.size, buffer.position, buffer.speed, buffer.direction);
 
 					pthread_create(&messageThread, NULL, sendMessage, &indexMessage);
                 }
@@ -131,21 +140,28 @@ int main(int argc, char *argv[]) {
   	}
 }
 
-CollisionType checkCars(int *car1, int *car2, int size) {
+CollisionType checkCars(int car1, int *car2, int size) {
+
+    pthread_mutex_lock(&lock);
 
 	for (int i = 0; i < size; i++) {
-		for (int j = i + 1; j < size; j++) {
 
-			CollisionType collisionType = checkCollision(cars[i], cars[j]);
+		// If is the same ca ror if the car isn't anymore on the array,
+		// just continue the loop
+		if (car1 == i || cars[i].id == -1) continue;
 
-			if (collisionType) {
-				*car1 = i;
-				*car2 = j;
+		CollisionType collisionType = checkCollision(cars[car1], cars[i]);
 
-				return collisionType;
-			}
+		if (collisionType) {
+			*car2 = i;
+		
+			pthread_mutex_unlock(&lock);
+
+			return collisionType;
 		}
 	}
+
+    pthread_mutex_unlock(&lock);
 
 	return noCollision;
 }
@@ -156,21 +172,27 @@ void *sendMessage(void *ptr) {
 	int id = indexMessage->id;
 	ClientMessage message = indexMessage->message;
 
+	// Check if a car already had collided but still sending messages
+	// and just return if so
+	if (id != -1 && cars[id].id == -1) return NULL;
+
 	// Check the type of the message and simulate the delay
 	if (message.type == security) {
-
-		Car car = cars[id];
 		
-		car.id = id;
-		car.size = message.size;
-		car.speed = message.speed;
-		car.position = message.position;
-		car.timestamp = message.timestamp;
-		car.direction = message.direction;
+		pthread_mutex_lock(&lock);
+		
+		cars[id].id = id;
+		cars[id].size = message.size;
+		cars[id].speed = message.speed;
+		cars[id].position = message.position;
+		cars[id].timestamp = message.timestamp;
+		cars[id].direction = message.direction;
 
-		int car1 = -1, car2 = -1;
+	    pthread_mutex_unlock(&lock);
 
-		CollisionType collisionType = checkCars(&car1, &car2, max_clients);
+		int car2 = -1;
+
+		CollisionType collisionType = checkCars(id, &car2, nClients);
 
 		struct timespec ts;
     	ts.tv_sec = 10 / 1000;
@@ -181,11 +203,13 @@ void *sendMessage(void *ptr) {
 
 		switch (collisionType) {
 			case possibleCollision:
+				printf("Possible colision between car %d and car %d\n", id, car2);
+
 				// Send a message to the first car stop
 				response1.type = security;
 				response1.action = brake;
-				response1.id = car1;
-				send(client_socket[car1], (char *) &response1, sizeof(response1), 0);
+				response1.id = id;
+				send(client_socket[id], (char *) &response1, sizeof(response1), 0);
 				
 				// Send a message to the second car accelerate
 				response2.type = security;
@@ -195,12 +219,17 @@ void *sendMessage(void *ptr) {
 
 				break;
 			case collision:
+				printf("Colision between car %d and car %d\n", id, car2);
+
+				cars[id].id = -1;
+				cars[car2].id = -1;
+
 				// Send a message to call an ambulance
 				response1.type = security;
 				response1.action = ambulance;
-				response1.id = car1;
+				response1.id = id;
 
-				send(client_socket[car1], (char *) &response1, sizeof(response1), 0);
+				send(client_socket[id], (char *) &response1, sizeof(response1), 0);
 				
 				response2.type = security;
 				response2.action = ambulance;
@@ -211,9 +240,8 @@ void *sendMessage(void *ptr) {
 			default: break;
 		}
 
-		// If no car was selected or any of them was the last car that sent a message, 
-		// send a response to do nothing
-		if (car1 != id && car2 != id) {
+		// If the car will not colide with any other, just sent a response
+		if (car2 == -1) {
 			response1.type = security;
 			response1.action = none;
 			response1.id = id;
@@ -225,6 +253,8 @@ void *sendMessage(void *ptr) {
     	ts.tv_sec = 100 / 1000;
     	ts.tv_nsec = 0.1 * 1000000;
     	nanosleep(&ts, NULL);
+
+		printf("Got this message from car %d: %s\n", id, message.message);
 
 		// Just echo the received message
 		ServerMessage response;

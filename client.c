@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <time.h>
+#include <math.h>
 #include "definitions.h"
 
 #define h_addr h_addr_list[0]
@@ -21,7 +22,7 @@ int main(int argc, char * argv[])
     time_t timestamp_sec; 
     ServerMessage* server_message;
     int colision_flag = 0;
-    int old_speed;
+    int baseSpeed;
     
     message = malloc(sizeof(ClientMessage));
     server_message = malloc(sizeof(ServerMessage));
@@ -42,6 +43,7 @@ int main(int argc, char * argv[])
     message->direction = atoi(argv[5]);
     strcpy(message->message,argv[6]);
 
+    baseSpeed = message->speed;
 
     /* criacao de socket ativo*/
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -78,21 +80,14 @@ int main(int argc, char * argv[])
     while(1) {
         message->timestamp = time(&timestamp_sec);
         message->position = message->position + message->speed;
-        if (colision_flag) {
-            if (colision_flag == 1) {
-                colision_flag++;
-            }
-            else if (colision_flag == 2) {
-                colision_flag = 0;
-                message->speed = old_speed;
-            }
-        }
+
+        // Stop the simulation if the car is exiting the board
+        if (abs(message->position) > 50) break;
 
         if(send(socket_fd, message, sizeof(ClientMessage) , 0) < 0) {
             printf("Not possible to send the message\n");
             exit(1);
         }
-        
        
         if (read(socket_fd, server_message, sizeof(ServerMessage)) < 0) {
             printf("Not possible to read from socket\n");
@@ -101,15 +96,24 @@ int main(int argc, char * argv[])
 
         message->id = server_message->id;
         
-        if (server_message->type != noCollision) {
-            if (server_message->action == brake || server_message->action == ambulance) {
-                old_speed = message->speed;
+        if (colision_flag) {
+            colision_flag = 0;
+            message->speed = baseSpeed;
+        }
+
+        if (server_message->type == security) {
+            // If a colision happens, remove the car from the simulation
+            if (server_message->action == ambulance) break;
+            else if (server_message->action == brake) {
                 message->speed = 0;
                 colision_flag++;
             }
             
             else if (server_message->action == accelerate) {
-                message->speed = 10;
+                // Set the speed to the maximum based on the sign of the base speed
+                message->speed = baseSpeed > 0 ? 10 : -10;
+
+                colision_flag++;
             }
         }
 
