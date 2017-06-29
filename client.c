@@ -117,6 +117,34 @@ int main(int argc, char * argv[])
             }
         }
 
+        // Send a confort/traffic or entertainment
+        if (!(rand() % 4)) {
+            ClientMessage *newMessage;
+            ServerMessage *newServerMessage;
+
+            newMessage = calloc(1, sizeof(ClientMessage));
+            newServerMessage = calloc(1, sizeof(ServerMessage));
+
+            newMessage->id = message->id;
+            newMessage->type = rand() % 2 + 2; // Send a type that is diferent from the security pkg
+            strcpy(newMessage->message, message->message);
+
+            if(send(socket_fd, newMessage, sizeof(ClientMessage) , 0) < 0) {
+                printf("Not possible to send the message\n");
+                exit(1);
+            }
+
+            if (read(socket_fd, newServerMessage, sizeof(ServerMessage)) < 0) {
+                printf("Not possible to read from socket\n");
+                exit(1);
+            }
+
+            free(newMessage);
+            free(newServerMessage);
+            newMessage = NULL;
+            newServerMessage = NULL;
+        }
+
         sleep(2);
 
     }
@@ -124,3 +152,4 @@ int main(int argc, char * argv[])
     close(socket_fd);
     return 0; 
 }
+

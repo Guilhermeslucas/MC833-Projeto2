@@ -41,7 +41,7 @@ typedef enum CollisionType {
 /// Definition of the client message struct
 typedef struct clientMessage {
 	MessageType type; 
-        int id;
+    int id;
 	int size;
 	int speed;
 	int position;
@@ -52,7 +52,7 @@ typedef struct clientMessage {
 
 /// Definition of the server message struct
 typedef struct serverMessage {
-        int id;
+    int id;
 	MessageType type;
 	Action action;
 	char message[100];
@@ -68,7 +68,7 @@ typedef struct car {
 	Direction direction;
 } Car;
 
-/// Auxiliary struct to pass an id and a message to ne thread
+/// Auxiliary struct to pass an id and a message to new thread
 typedef struct IndexMessage {
 	int id;
 	ClientMessage message;

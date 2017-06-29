@@ -219,7 +219,7 @@ void *sendMessage(void *ptr) {
 
 				break;
 			case collision:
-				printf("Colision between car %d and car %d\n", id, car2);
+				printf("Fatal colision between car %d and car %d\n", id, car2);
 
 				cars[id].id = -1;
 				cars[car2].id = -1;

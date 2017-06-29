@@ -7,7 +7,13 @@ import time
 
 message = "MC833"
 procs = []
-for i in range(0,16):
+
+## Start the server
+p = subprocess.Popen("./server", shell=True)
+procs.append(p)
+
+## Start the clients with random informations
+for i in range(0,5):
     try:
         rand_type = str(1)
         rand_size = str(randint(1,5))
@@ -32,11 +38,8 @@ for i in range(0,16):
 
 while True:
     try:
-        print("Running clients")
         time.sleep(5)
     except KeyboardInterrupt:
         for proc in procs:
             proc.kill()
         exit()
-
-    
