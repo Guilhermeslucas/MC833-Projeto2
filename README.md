@@ -1,5 +1,5 @@
 - Guilherme Lucas da Silva RA: 155618
-- Felipe dal Mas Eulalio RA: 155299
+- Felipe Dal Mas Eulalio RA: 155299
 
 # Projeto 2 - Monitoramento de Tráfego
 
@@ -27,7 +27,7 @@ Script desenvolvido em Python é extremamente simples e realiza a simples tarefa
 ## 3. Implementação
 
 ### 3.1 Cliente
-Para a implementação do código do cliente, foram necessárias algumas definições feitas no header **definitions.h**. A estrutura mais importante dessa parte do código é a **ClientMessage** estrutura feita para enviar as informações do servidor ao cliente. Esse possui os seguintes atributos:   
+Para a implementação do código do cliente, foram necessárias algumas definições feitas no header ```definitions.h```. A estrutura mais importante dessa parte do código é a **ClientMessage** estrutura feita para enviar as informações do servidor ao cliente. Esse possui os seguintes atributos:   
 
 * type: tipo da mensagem (conforto, segurança, entretenimento)
 * id: identificador único para o automóvel que está enviando a mensagem 
@@ -46,7 +46,7 @@ Após obtidos esses campos pela linha de comando, onde o usuário passa os valor
 * read: recebe mensagem do servidor
 
 ### 3.2 Servidor
-Assim como para o cliente, o server fez uso de várias estruturas definidas no **definitions.h**. Algumas foram muito utilizadas, como a **ClientMessage**, que recebia a mensagem do cliente e que já foi esmiuçada anteriormente, a **Car**, que guarda as informações de um veículo, tais como: 
+Assim como para o cliente, o server fez uso de várias estruturas definidas no ```definitions.h```. Algumas foram muito utilizadas, como a **ClientMessage**, que recebia a mensagem do cliente e que já foi esmiuçada anteriormente, a **Car**, que guarda as informações de um veículo, tais como: 
 
 * type: tipo da mensagem (conforto, segurança, entretenimento)
 * id: identificador único para o automóvel que está enviando a mensagem 
@@ -73,8 +73,30 @@ Retorna o número de sockets que estão sendo monitorados. Se ocorrer um erro, r
 * FD_CLR: remove um socket da lista de sockets a serem monitorados
 * FD_ISSET: checa se algo ocorreu no socket master. Se sim, é um                                     novo cliente se conectando
 
+Com relação à detecção de colisões, foi feito um algoritmo no qual era calculado quanto tempo cada veículo demoraria para chegar ao cruzamento. A esse valor era descontado o tempo desde a última mensagem enviada. Feito isso, era comparado se o veículo chegaria ao cruzamento enquanto o outro ainda estaria cruzando, ou seja, considerando o tamanho do veículo, se houvesse tempo hábil para evitar a colisão, os carros envolvidos eram avisados. Caso ambos os veículos estivessem chegando ao centro, essa seria uma colisão inevitável, que acionaria a mensagem de *ambulância*. Toda essa lógica se encontra no arquivo ```collisionChecker.c```.
 
 ## 4. Testes
-Criamos um simples método de testar o software de maneira automatizada. O **teste_script.py** lança o servidor e os clientes com valores aleatórios para testar o projeto. Para testar, basta dar o comando ```make```. Feito isso, serão exibidas na saída principal a mensagem recebida pelo servidor do cliente e mensagens em caso de possíveis colisões ou colisões inevitáveis. 
+Criamos um simples método de testar o software de maneira automatizada. O ```teste_script.py``` lança o servidor e os clientes com valores aleatórios para testar o projeto. Para testar, basta dar o comando ```make```. Feito isso, serão exibidas na saída principal a mensagem recebida pelo servidor do cliente e mensagens em caso de possíveis colisões ou colisões inevitáveis. 
 
 ## 5. Resultados e Conclusões
+
+Para observar o tráfego na rede, foi utilizado o Wireshark. Com o auxílio da ferramenta, foi possível observar os pacotes e também o atraso no envio dos mesmos. Dessa forma, abaixo estão os gráficos obtidos para testes realizados com 5, 10 e 20 clientes. 
+
+<html>
+<div style="width60%">![Gráfico 5 clientes](graficos/Grafico5C.png)</div>
+<div align="center"> **Figura 1:** 5 clientes </div>
+</html>
+
+<html>
+<div style="width60%">![Gráfico 10 clientes](graficos/Grafico10C.png)</div>
+<div align="center"> **Figura 2:** 10 clientes </div>
+</html>
+
+<html>
+<div style="width60%">![Gráfico 20 clientes](graficos/Grafico20C.png)</div>
+<div align="center"> **Figura 3:** 20 clientes </div>
+</html>
+
+É possível observar que os atrasos são maiores no meio da execução, quando existem mais clientes conectados e, consequentemente, mais pacotes sendo trocados com o servidor. 
+
+Com relação ao preditor de colisões, pode-se dizer que houve um resultado até que satisfatório. Em algumas situações, apesar de prever as colisões, os carros não conseguiam receber a mensagem de colisão, talvez por alguma perda, e depois de um tempo acabavam colidindo. Mas fora essas raras exceções, as colisões foram bem encontradas e evitadas quando possível.
